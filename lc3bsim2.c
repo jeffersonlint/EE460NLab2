@@ -499,7 +499,28 @@ void process_instruction(){
       int baseR = (byte2>>6)&7;
       if(byte1&1==1) sr1=sr1+4;
       int offset6 = byte2&63;
-      if((offset6>>))*/
+      if((offset6>>5)&1==1){  //To ensure correct sign extension
+        offset6 = offset6 | 0xFFC0;
+      }
+      NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[baseR] + CURRENT_LATCHES.REGS[offset6];
+      if(NEXT_LATCHES.REGS[dr]>0)
+       {
+         NEXT_LATCHES.N=0;
+         NEXT_LATCHES.Z=0;
+         NEXT_LATCHES.P=1;
+       }
+       else if(NEXT_LATCHES.REGS[dr]<0)
+       {
+         NEXT_LATCHES.N=1;
+         NEXT_LATCHES.Z=0;
+         NEXT_LATCHES.P=0;
+       }
+       else
+       {
+         NEXT_LATCHES.N=0;
+         NEXT_LATCHES.Z=1;
+         NEXT_LATCHES.P=0;
+       }
    }
    else if(opcode==3) //STB
    {
