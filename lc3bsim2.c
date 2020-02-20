@@ -445,7 +445,7 @@ void process_instruction(){
      int dr = (byte1>>1)&7;
      int sr1 = (byte2>>6)&3;
      if(byte1&1==1) sr1=sr1+4;
-     printf("%i, %i\n", dr, sr1);
+
    }
    else if(opcode==6)  //LDW
    {
