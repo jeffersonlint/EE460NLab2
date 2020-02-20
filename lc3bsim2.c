@@ -562,7 +562,61 @@ void process_instruction(){
    }
    else if(opcode==9) //XOR
    {
-
+     int dr = (byte1>>1)&7;
+     int sr1 = (byte2>>6)&3;
+     if(byte1&1==1) sr1=sr1+4;
+     //immediate mode
+     if((byte2>>5)&1==1)
+     {
+        int imm5=byte2&31;
+        if ((imm5>>4)&1==1)
+        {
+          imm5 = imm5 | 0xFFFFFFE0;
+        }
+        NEXT_LATCHES.REGS[dr]=CURRENT_LATCHES.REGS[sr1]^imm5;
+        if(NEXT_LATCHES.REGS[dr]>0)
+        {
+          NEXT_LATCHES.N=0;
+          NEXT_LATCHES.Z=0;
+          NEXT_LATCHES.P=1;
+        }
+        else if(NEXT_LATCHES.REGS[dr]<0)
+        {
+          NEXT_LATCHES.N=1;
+          NEXT_LATCHES.Z=0;
+          NEXT_LATCHES.P=0;
+        }
+        else
+        {
+          NEXT_LATCHES.N=0;
+          NEXT_LATCHES.Z=1;
+          NEXT_LATCHES.P=0;
+        }
+     }
+     //register mode
+     else
+     {
+       int sr2 = byte2&7;
+       NEXT_LATCHES.REGS[dr]=CURRENT_LATCHES.REGS[sr1]^CURRENT_LATCHES.REGS[sr2];
+       if(NEXT_LATCHES.REGS[dr]>0)
+       {
+         NEXT_LATCHES.N=0;
+         NEXT_LATCHES.Z=0;
+         NEXT_LATCHES.P=1;
+       }
+       else if(NEXT_LATCHES.REGS[dr]<0)
+       {
+         NEXT_LATCHES.N=1;
+         NEXT_LATCHES.Z=0;
+         NEXT_LATCHES.P=0;
+       }
+       else
+       {
+         NEXT_LATCHES.N=0;
+         NEXT_LATCHES.Z=1;
+         NEXT_LATCHES.P=0;
+       }
+     }
    }
    else if(opcode==12)  //JMP
    {
