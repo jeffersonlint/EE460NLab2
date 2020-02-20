@@ -448,10 +448,30 @@ void process_instruction(){
      //immediate mode
      if((byte2>>5)&1==1)
      {
-       int imm5=byte2&31;
-       if ((imm5>>4)&1==1)
+        int imm5=byte2&31;
+        if ((imm5>>4)&1==1)
+        {
           imm5 = imm5 | 0xFFFFFFE0;
-       printf("%i\n", imm5);
+        }
+        NEXT_LATCHES.REGS[dr]=CURRENT_LATCHES.REGS[sr1]&imm5;
+        if(NEXT_LATCHES.REGS[dr]>0)
+        {
+          NEXT_LATCHES.N=0;
+          NEXT_LATCHES.Z=0;
+          NEXT_LATCHES.P=1;
+        }
+        else if(NEXT_LATCHES.REGS[dr]<0)
+        {
+          NEXT_LATCHES.N=1;
+          NEXT_LATCHES.Z=0;
+          NEXT_LATCHES.P=0;
+        }
+        else
+        {
+          NEXT_LATCHES.N=0;
+          NEXT_LATCHES.Z=1;
+          NEXT_LATCHES.P=0;
+        }
      }
      //register mode
      else
