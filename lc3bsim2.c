@@ -432,11 +432,9 @@ void process_instruction(){
    {
       int dr = (byte1>>1)&7;
       int baseR = (byte2>>6)&7;
+      if(byte1&1==1) sr1=sr1+4;
       int offset6 = byte2&63;
-      if (byte1)
-      {
-        /* code */
-      }
+      if((offset6>>))
    }
    else if(opcode==3) //STB
    {
