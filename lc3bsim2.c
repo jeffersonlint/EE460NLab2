@@ -422,7 +422,18 @@ void process_instruction(){
 
    if(opcode==0)  //BR
    {
-
+     int n = (byte1>>3)&1;
+     int z = (byte1>>2)&1;
+     int p = (byte1>>1)&1;
+     if(n&CURRENT_LATCHES.N==1 || z&CURRENT_LATCHES.Z==1 || p&CURRENT_LATCHES.P==1) //branch taken
+     {
+       int offset = byte2;
+       if(byte1&1==1)
+       {
+         offset = offset | 0xFFFFFF00;
+       }
+       NEXT_LATCHES.PC=CURRENT_LATCHES.PC+(offset<<1);
+     }
    }
    else if(opcode==1) //ADD
    {
@@ -437,14 +448,14 @@ void process_instruction(){
         {
           imm5 = imm5 | 0xFFFFFFE0;
         }
-        NEXT_LATCHES.REGS[dr]=CURRENT_LATCHES.REGS[sr1]+imm5;
-        if(NEXT_LATCHES.REGS[dr]>0)
+        NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]+imm5);
+        if(CURRENT_LATCHES.REGS[sr1]+imm5>0)
         {
           NEXT_LATCHES.N=0;
           NEXT_LATCHES.Z=0;
           NEXT_LATCHES.P=1;
         }
-        else if(NEXT_LATCHES.REGS[dr]<0)
+        else if(CURRENT_LATCHES.REGS[sr1]+imm5<0)
         {
           NEXT_LATCHES.N=1;
           NEXT_LATCHES.Z=0;
@@ -461,14 +472,14 @@ void process_instruction(){
      else
      {
        int sr2 = byte2&7;
-       NEXT_LATCHES.REGS[dr]=CURRENT_LATCHES.REGS[sr1]+CURRENT_LATCHES.REGS[sr2];
-       if(NEXT_LATCHES.REGS[dr]>0)
+       NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]+CURRENT_LATCHES.REGS[sr2]);
+       if(CURRENT_LATCHES.REGS[sr1]+CURRENT_LATCHES.REGS[sr2]>0)
        {
          NEXT_LATCHES.N=0;
          NEXT_LATCHES.Z=0;
          NEXT_LATCHES.P=1;
        }
-       else if(NEXT_LATCHES.REGS[dr]<0)
+       else if(CURRENT_LATCHES.REGS[sr1]+CURRENT_LATCHES.REGS[sr2]<0)
        {
          NEXT_LATCHES.N=1;
          NEXT_LATCHES.Z=0;
@@ -484,11 +495,11 @@ void process_instruction(){
    }
    else if(opcode==2) //LDB
    {
-      int dr = (byte1>>1)&7;
+      /*int dr = (byte1>>1)&7;
       int baseR = (byte2>>6)&7;
       if(byte1&1==1) sr1=sr1+4;
       int offset6 = byte2&63;
-      if((offset6>>))
+      if((offset6>>))*/
    }
    else if(opcode==3) //STB
    {
@@ -511,14 +522,14 @@ void process_instruction(){
         {
           imm5 = imm5 | 0xFFFFFFE0;
         }
-        NEXT_LATCHES.REGS[dr]=CURRENT_LATCHES.REGS[sr1]&imm5;
-        if(NEXT_LATCHES.REGS[dr]>0)
+        NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]&imm5);
+        if(CURRENT_LATCHES.REGS[sr1]&imm5>0)
         {
           NEXT_LATCHES.N=0;
           NEXT_LATCHES.Z=0;
           NEXT_LATCHES.P=1;
         }
-        else if(NEXT_LATCHES.REGS[dr]<0)
+        else if(CURRENT_LATCHES.REGS[sr1]&imm5<0)
         {
           NEXT_LATCHES.N=1;
           NEXT_LATCHES.Z=0;
@@ -535,14 +546,14 @@ void process_instruction(){
      else
      {
        int sr2 = byte2&7;
-       NEXT_LATCHES.REGS[dr]=CURRENT_LATCHES.REGS[sr1]&CURRENT_LATCHES.REGS[sr2];
-       if(NEXT_LATCHES.REGS[dr]>0)
+       NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]&CURRENT_LATCHES.REGS[sr2]);
+       if(CURRENT_LATCHES.REGS[sr1]&CURRENT_LATCHES.REGS[sr2]>0)
        {
          NEXT_LATCHES.N=0;
          NEXT_LATCHES.Z=0;
          NEXT_LATCHES.P=1;
        }
-       else if(NEXT_LATCHES.REGS[dr]<0)
+       else if(CURRENT_LATCHES.REGS[sr1]&CURRENT_LATCHES.REGS[sr2]<0)
        {
          NEXT_LATCHES.N=1;
          NEXT_LATCHES.Z=0;
@@ -577,14 +588,14 @@ void process_instruction(){
         {
           imm5 = imm5 | 0xFFFFFFE0;
         }
-        NEXT_LATCHES.REGS[dr]=CURRENT_LATCHES.REGS[sr1]^imm5;
-        if(NEXT_LATCHES.REGS[dr]>0)
+        NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]^imm5);
+        if(CURRENT_LATCHES.REGS[sr1]^imm5>0)
         {
           NEXT_LATCHES.N=0;
           NEXT_LATCHES.Z=0;
           NEXT_LATCHES.P=1;
         }
-        else if(NEXT_LATCHES.REGS[dr]<0)
+        else if(CURRENT_LATCHES.REGS[sr1]^imm5<0)
         {
           NEXT_LATCHES.N=1;
           NEXT_LATCHES.Z=0;
@@ -601,14 +612,14 @@ void process_instruction(){
      else
      {
        int sr2 = byte2&7;
-       NEXT_LATCHES.REGS[dr]=CURRENT_LATCHES.REGS[sr1]^CURRENT_LATCHES.REGS[sr2];
-       if(NEXT_LATCHES.REGS[dr]>0)
+       NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]^CURRENT_LATCHES.REGS[sr2]);
+       if(CURRENT_LATCHES.REGS[sr1]^CURRENT_LATCHES.REGS[sr2])
        {
          NEXT_LATCHES.N=0;
          NEXT_LATCHES.Z=0;
          NEXT_LATCHES.P=1;
        }
-       else if(NEXT_LATCHES.REGS[dr]<0)
+       else if(CURRENT_LATCHES.REGS[sr1]^CURRENT_LATCHES.REGS[sr2]<0)
        {
          NEXT_LATCHES.N=1;
          NEXT_LATCHES.Z=0;
