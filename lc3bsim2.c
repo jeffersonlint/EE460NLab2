@@ -531,14 +531,14 @@ void process_instruction(){
       if((offset6>>5)&1==1){  //To ensure correct sign extension
         offset6 = offset6 | 0xFFC0;
       }
-      NEXT_LATCHES.REGS[sr] = CURRENT_LATCHES.REGS[baseR] + CURRENT_LATCHES.REGS[offset6];
-      if(NEXT_LATCHES.REGS[sr]>0)
+      NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[baseR] + CURRENT_LATCHES.REGS[offset6];
+      if(NEXT_LATCHES.REGS[dr]>0)
        {
          NEXT_LATCHES.N=0;
          NEXT_LATCHES.Z=0;
          NEXT_LATCHES.P=1;
        }
-       else if(NEXT_LATCHES.REGS[sr]<0)
+       else if(NEXT_LATCHES.REGS[dr]<0)
        {
          NEXT_LATCHES.N=1;
          NEXT_LATCHES.Z=0;
