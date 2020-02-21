@@ -496,7 +496,7 @@ void process_instruction(){
    else if(opcode==2) //LDB
    {
       int dr = (byte1>>1)&7;
-      int baseR = (byte2>>6)&7;
+      int baseR = (byte2>>6)&3;
       if(byte1&1==1) baseR=baseR+4;
       int offset6 = byte2&63;
       if((offset6>>5)&1==1){  //To ensure correct sign extension
@@ -525,7 +525,7 @@ void process_instruction(){
    else if(opcode==3) //STB
    {
       int sr = (byte1>>1)&7;
-      int baseR = (byte2>>6)&7;
+      int baseR = (byte2>>6)&3;
       if(byte1&1==1) baseR=baseR+4;
       int offset6 = byte2&63;
       if((offset6>>5)&1==1){  //To ensure correct sign extension
