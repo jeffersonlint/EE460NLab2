@@ -542,7 +542,7 @@ void process_instruction(){
          NEXT_LATCHES.P=0;
        }
    }
-   else if(opcode==3) //STB
+   else if(opcode==3) //STB DONE
    {
       int sr = (byte1>>1)&7;
       int baseR = (byte2>>6)&3;
@@ -675,17 +675,19 @@ void process_instruction(){
          NEXT_LATCHES.P=0;
        }
    }
-   else if(opcode==7) //STW
+   else if(opcode==7) //STW DONE
    {
     int sr = (byte1>>1)&7;
     int baseR = (byte2>>6)&3;
     if(byte1&1==1) baseR = baseR + 4;
     int offset6 = byte2&63;
     if((offset6>>5)&1==1){  //To ensure correct sign extension
-      offset6 = offset6 | 0xFFC0;
+      offset6 = offset6 | 0xFFFFFFC0;
     }
     int shiftoffset6 = offset6<<1;
-    MEMORY[(CURRENT_LATCHES.REGS[baseR] + shiftoffset6)/2][1] = CURRENT_LATCHES.REGS[sr];
+    MEMORY[(CURRENT_LATCHES.REGS[baseR]/2) + shiftoffset6][1] = (CURRENT_LATCHES.REGS[sr]&0xFF00)>>8;
+    MEMORY[(CURRENT_LATCHES.REGS[baseR]/2) + shiftoffset6][0] = CURRENT_LATCHES.REGS[sr]&0x00FF;
+
    }
    else if(opcode==9) //XOR DONE
    {
@@ -758,11 +760,11 @@ void process_instruction(){
        }
      }
    }
-   else if(opcode==12)  //JMP
+   else if(opcode==12)  //JMP DONE
    {
     int baseR = (byte2>>6)&3;
     if(byte1&1 == 1) baseR = baseR + 4;
-    NEXT_LATCHES.PC = baseR;
+    NEXT_LATCHES.PC = CURRENT_LATCHES.REGS[baseR];
    }
    else if(opcode==13)  //SHF
    {
@@ -784,7 +786,7 @@ void process_instruction(){
     else  //RSHFA
     {
       if((byte1>>7)&1 == 1){
-        nzp = sr;    
+        nzp = sr;
         for (int i = 0; i < amount; ++i)
         {
           sr>>1;
@@ -792,11 +794,11 @@ void process_instruction(){
           sr = sr | 32768;  //Set most signifcant bit to 1
           nzp = nzp | 32768;
         }
-        NEXT_LATCHES.REGS[dr]=Low16bits(sr); 
+        NEXT_LATCHES.REGS[dr]=Low16bits(sr);
       }
       else{
         nzp = sr>>amount;
-        NEXT_LATCHES.REGS[dr]=Low16bits(sr>>amount); 
+        NEXT_LATCHES.REGS[dr]=Low16bits(sr>>amount);
       }
     }
            if(nzp>0)
