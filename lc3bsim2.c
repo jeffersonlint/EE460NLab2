@@ -760,11 +760,11 @@ void process_instruction(){
        }
      }
    }
-   else if(opcode==12)  //JMP
+   else if(opcode==12)  //JMP DONE
    {
     int baseR = (byte2>>6)&3;
     if(byte1&1 == 1) baseR = baseR + 4;
-    NEXT_LATCHES.PC = baseR;
+    NEXT_LATCHES.PC = CURRENT_LATCHES.REGS[baseR];
    }
    else if(opcode==13)  //SHF
    {
@@ -786,7 +786,7 @@ void process_instruction(){
     else  //RSHFA
     {
       if((byte1>>7)&1 == 1){
-        nzp = sr;    
+        nzp = sr;
         for (int i = 0; i < amount; ++i)
         {
           sr>>1;
@@ -794,11 +794,11 @@ void process_instruction(){
           sr = sr | 32768;  //Set most signifcant bit to 1
           nzp = nzp | 32768;
         }
-        NEXT_LATCHES.REGS[dr]=Low16bits(sr); 
+        NEXT_LATCHES.REGS[dr]=Low16bits(sr);
       }
       else{
         nzp = sr>>amount;
-        NEXT_LATCHES.REGS[dr]=Low16bits(sr>>amount); 
+        NEXT_LATCHES.REGS[dr]=Low16bits(sr>>amount);
       }
     }
            if(nzp>0)
