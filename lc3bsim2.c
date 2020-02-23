@@ -506,7 +506,7 @@ void process_instruction(){
        }
      }
    }
-   else if(opcode==2) //LDB
+   else if(opcode==2) //LDB DONE
    {
       int dr = (byte1>>1)&7;
       int baseR = (byte2>>6)&3;
@@ -516,7 +516,8 @@ void process_instruction(){
         offset6 = offset6 | 0xFFC0;
       }
 
-      int memAccess = MEMORY[(CURRENT_LATCHES.REGS[baseR] + offset6)/4][1];
+      int memAccess = MEMORY[(CURRENT_LATCHES.REGS[baseR]/2) + offset6][0];
+      printf("%i, %i\n", (CURRENT_LATCHES.REGS[baseR]/2) + offset6, MEMORY[(CURRENT_LATCHES.REGS[baseR]/2) + offset6][0]);
       if((memAccess>>7)&1==1)
       {
         memAccess=memAccess|0xFFFFFF00;
@@ -548,9 +549,9 @@ void process_instruction(){
       if(byte1&1==1) baseR=baseR+4;
       int offset6 = byte2&63;
       if((offset6>>5)&1==1){  //To ensure correct sign extension
-        offset6 = offset6 | 0xFFC0;
+        offset6 = offset6 | 0xFFFFFFC0;
       }
-      MEMORY[(CURRENT_LATCHES.REGS[baseR] + offset6)/2][1] = CURRENT_LATCHES.REGS[sr];
+      MEMORY[(CURRENT_LATCHES.REGS[baseR]/2) + offset6][0] = CURRENT_LATCHES.REGS[sr]&0x000000FF;
    }
    else if(opcode==4) //JSR(R) ////Michael says this is scary
    {
