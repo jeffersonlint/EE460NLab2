@@ -440,6 +440,11 @@ void process_instruction(){
      int dr = (byte1>>1)&7;
      int sr1 = (byte2>>6)&3;
      if(byte1&1==1) sr1=sr1+4;
+     int arg1 = CURRENT_LATCHES.REGS[sr1];
+     if((arg1>>15)&1==1)
+     {
+       arg1 = arg1 | 0xFFFF0000;
+     }
      //immediate mode
      if((byte2>>5)&1==1)
      {
@@ -448,14 +453,16 @@ void process_instruction(){
         {
           imm5 = imm5 | 0xFFFFFFE0;
         }
-        NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]+imm5);
-        if(CURRENT_LATCHES.REGS[sr1]+imm5>0)
+
+        int sum = (arg1+imm5);
+        NEXT_LATCHES.REGS[dr]=Low16bits(sum);
+        if(sum>0)
         {
           NEXT_LATCHES.N=0;
           NEXT_LATCHES.Z=0;
           NEXT_LATCHES.P=1;
         }
-        else if(CURRENT_LATCHES.REGS[sr1]+imm5<0)
+        else if(sum<0)
         {
           NEXT_LATCHES.N=1;
           NEXT_LATCHES.Z=0;
@@ -472,14 +479,20 @@ void process_instruction(){
      else
      {
        int sr2 = byte2&7;
-       NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]+CURRENT_LATCHES.REGS[sr2]);
-       if(CURRENT_LATCHES.REGS[sr1]+CURRENT_LATCHES.REGS[sr2]>0)
+       int arg2 = CURRENT_LATCHES.REGS[sr2];
+       if((arg2>>15)&1==1)
+       {
+         arg2 = arg2 | 0xFFFF0000;
+       }
+       int sum = arg1+arg2;
+       NEXT_LATCHES.REGS[dr]=Low16bits(sum);
+       if(sum>0)
        {
          NEXT_LATCHES.N=0;
          NEXT_LATCHES.Z=0;
          NEXT_LATCHES.P=1;
        }
-       else if(CURRENT_LATCHES.REGS[sr1]+CURRENT_LATCHES.REGS[sr2]<0)
+       else if(sum<0)
        {
          NEXT_LATCHES.N=1;
          NEXT_LATCHES.Z=0;
@@ -548,6 +561,11 @@ void process_instruction(){
      int dr = (byte1>>1)&7;
      int sr1 = (byte2>>6)&3;
      if(byte1&1==1) sr1=sr1+4;
+     int arg1 = CURRENT_LATCHES.REGS[sr1];
+     if((arg1>>15)&1==1)
+     {
+       arg1 = arg1 | 0xFFFF0000;
+     }
      //immediate mode
      if((byte2>>5)&1==1)
      {
@@ -556,14 +574,16 @@ void process_instruction(){
         {
           imm5 = imm5 | 0xFFFFFFE0;
         }
-        NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]&imm5);
-        if(CURRENT_LATCHES.REGS[sr1]&imm5>0)
+
+        int sum = (arg1&imm5);
+        NEXT_LATCHES.REGS[dr]=Low16bits(sum);
+        if(sum>0)
         {
           NEXT_LATCHES.N=0;
           NEXT_LATCHES.Z=0;
           NEXT_LATCHES.P=1;
         }
-        else if(CURRENT_LATCHES.REGS[sr1]&imm5<0)
+        else if(sum<0)
         {
           NEXT_LATCHES.N=1;
           NEXT_LATCHES.Z=0;
@@ -580,14 +600,20 @@ void process_instruction(){
      else
      {
        int sr2 = byte2&7;
-       NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]&CURRENT_LATCHES.REGS[sr2]);
-       if(CURRENT_LATCHES.REGS[sr1]&CURRENT_LATCHES.REGS[sr2]>0)
+       int arg2 = CURRENT_LATCHES.REGS[sr2];
+       if((arg2>>15)&1==1)
+       {
+         arg2 = arg2 | 0xFFFF0000;
+       }
+       int sum = arg1&arg2;
+       NEXT_LATCHES.REGS[dr]=Low16bits(sum);
+       if(sum>0)
        {
          NEXT_LATCHES.N=0;
          NEXT_LATCHES.Z=0;
          NEXT_LATCHES.P=1;
        }
-       else if(CURRENT_LATCHES.REGS[sr1]&CURRENT_LATCHES.REGS[sr2]<0)
+       else if(sum<0)
        {
          NEXT_LATCHES.N=1;
          NEXT_LATCHES.Z=0;
@@ -634,7 +660,7 @@ void process_instruction(){
    else if(opcode==7) //STW
    {
     int sr = (byte1>>1)&7;
-    int BaseR = (byte2>>6)&3;
+    int baseR = (byte2>>6)&3;
     if(byte1&1==1) baseR = baseR + 4;
     int offset6 = byte2&63;
     if((offset6>>5)&1==1){  //To ensure correct sign extension
@@ -648,6 +674,11 @@ void process_instruction(){
      int dr = (byte1>>1)&7;
      int sr1 = (byte2>>6)&3;
      if(byte1&1==1) sr1=sr1+4;
+     int arg1 = CURRENT_LATCHES.REGS[sr1];
+     if((arg1>>15)&1==1)
+     {
+       arg1 = arg1 | 0xFFFF0000;
+     }
      //immediate mode
      if((byte2>>5)&1==1)
      {
@@ -656,14 +687,16 @@ void process_instruction(){
         {
           imm5 = imm5 | 0xFFFFFFE0;
         }
-        NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]^imm5);
-        if(CURRENT_LATCHES.REGS[sr1]^imm5>0)
+
+        int sum = (arg1^imm5);
+        NEXT_LATCHES.REGS[dr]=Low16bits(sum);
+        if(sum>0)
         {
           NEXT_LATCHES.N=0;
           NEXT_LATCHES.Z=0;
           NEXT_LATCHES.P=1;
         }
-        else if(CURRENT_LATCHES.REGS[sr1]^imm5<0)
+        else if(sum<0)
         {
           NEXT_LATCHES.N=1;
           NEXT_LATCHES.Z=0;
@@ -680,14 +713,20 @@ void process_instruction(){
      else
      {
        int sr2 = byte2&7;
-       NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]^CURRENT_LATCHES.REGS[sr2]);
-       if(CURRENT_LATCHES.REGS[sr1]^CURRENT_LATCHES.REGS[sr2])
+       int arg2 = CURRENT_LATCHES.REGS[sr2];
+       if((arg2>>15)&1==1)
+       {
+         arg2 = arg2 | 0xFFFF0000;
+       }
+       int sum = arg1^arg2;
+       NEXT_LATCHES.REGS[dr]=Low16bits(sum);
+       if(sum>0)
        {
          NEXT_LATCHES.N=0;
          NEXT_LATCHES.Z=0;
          NEXT_LATCHES.P=1;
        }
-       else if(CURRENT_LATCHES.REGS[sr1]^CURRENT_LATCHES.REGS[sr2]<0)
+       else if(sum<0)
        {
          NEXT_LATCHES.N=1;
          NEXT_LATCHES.Z=0;
