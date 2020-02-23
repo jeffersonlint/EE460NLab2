@@ -552,7 +552,7 @@ void process_instruction(){
       }
       MEMORY[(CURRENT_LATCHES.REGS[baseR] + offset6)/2][1] = CURRENT_LATCHES.REGS[sr];
    }
-   else if(opcode==4) //JSR(R)
+   else if(opcode==4) //JSR(R) ////Michael says this is scary
    {
     int temp = NEXT_LATCHES.PC;
     if(byte1>>3 == 0){  //JSRR
