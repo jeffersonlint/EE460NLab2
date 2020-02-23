@@ -610,11 +610,38 @@ void process_instruction(){
     if((offset6>>5)&1==1){  //To ensure correct sign extension
       offset6 = offset6 | 0xFFC0;
     }
-
+    int shiftOffset = offset6<<1;
+    NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[baseR] + shiftOffset);
+      if(NEXT_LATCHES.REGS[dr]>0)
+       {
+         NEXT_LATCHES.N=0;
+         NEXT_LATCHES.Z=0;
+         NEXT_LATCHES.P=1;
+       }
+       else if(NEXT_LATCHES.REGS[dr]<0)
+       {
+         NEXT_LATCHES.N=1;
+         NEXT_LATCHES.Z=0;
+         NEXT_LATCHES.P=0;
+       }
+       else
+       {
+         NEXT_LATCHES.N=0;
+         NEXT_LATCHES.Z=1;
+         NEXT_LATCHES.P=0;
+       }
    }
    else if(opcode==7) //STW
    {
-
+    int sr = (byte1>>1)&7;
+    int BaseR = (byte2>>6)&3;
+    if(byte1&1==1) baseR = baseR + 4;
+    int offset6 = byte2&63;
+    if((offset6>>5)&1==1){  //To ensure correct sign extension
+      offset6 = offset6 | 0xFFC0;
+    }
+    int shiftOffset = offset6<<1;
+    NEXT_LATCHES.REGS[sr] = Low16bits(CURRENT_LATCHES.REGS[baseR] + shiftOffset);
    }
    else if(opcode==9) //XOR
    {
