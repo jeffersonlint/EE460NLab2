@@ -641,7 +641,7 @@ void process_instruction(){
       offset6 = offset6 | 0xFFC0;
     }
     int shiftOffset = offset6<<1;
-    NEXT_LATCHES.REGS[sr] = Low16bits(CURRENT_LATCHES.REGS[baseR] + shiftOffset);
+    MEMORY[(CURRENT_LATCHES.REGS[baseR] + shiftoffset6)/2][1] = CURRENT_LATCHES.REGS[sr];
    }
    else if(opcode==9) //XOR
    {
