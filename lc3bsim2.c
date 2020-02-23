@@ -566,7 +566,8 @@ void process_instruction(){
       if(byte1&1 == 1) pcoffset = pcoffset + 256;
       if(byte1>>1&1 == 1) pcoffset = pcoffset + 512;
       if(byte1>>2&1 == 1) pcoffset = pcoffset + 1024;
-      NEXT_LATCHES.PC = Low16bits(CURRENT_LATCHES.PC + (pcoffset<<1);
+      int x = CURRENT_LATCHES.PC + (pcoffset<<1);
+      NEXT_LATCHES.PC = Low16bits(x);
       NEXT_LATCHES.REGS[7] = temp;
     }
    }
@@ -760,7 +761,7 @@ void process_instruction(){
    else if(opcode==12)  //JMP
    {
     int baseR = (byte2>>6)&3;
-    if(byte1&1 = 1) baseR = baseR + 4;
+    if(byte1&1 == 1) baseR = baseR + 4;
     NEXT_LATCHES.PC = baseR;
    }
    else if(opcode==13)  //SHF
