@@ -801,24 +801,24 @@ void process_instruction(){
         NEXT_LATCHES.REGS[dr]=Low16bits(sr>>amount);
       }
     }
-           if(nzp>0)
-       {
-         NEXT_LATCHES.N=0;
-         NEXT_LATCHES.Z=0;
-         NEXT_LATCHES.P=1;
-       }
-       else if(nzp<0)
-       {
-         NEXT_LATCHES.N=1;
-         NEXT_LATCHES.Z=0;
-         NEXT_LATCHES.P=0;
-       }
-       else
-       {
-         NEXT_LATCHES.N=0;
-         NEXT_LATCHES.Z=1;
-         NEXT_LATCHES.P=0;
-       }
+      if(nzp>0)
+      {
+        NEXT_LATCHES.N=0;
+        NEXT_LATCHES.Z=0;
+        NEXT_LATCHES.P=1;
+      }
+      else if(nzp<0)
+      {
+        NEXT_LATCHES.N=1;
+        NEXT_LATCHES.Z=0;
+        NEXT_LATCHES.P=0;
+      }
+      else
+      {
+        NEXT_LATCHES.N=0;
+        NEXT_LATCHES.Z=1;
+        NEXT_LATCHES.P=0;
+      }
    }
    else if(opcode==14)  //LEA DONE
    {
