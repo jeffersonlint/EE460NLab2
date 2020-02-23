@@ -502,14 +502,20 @@ void process_instruction(){
       if((offset6>>5)&1==1){  //To ensure correct sign extension
         offset6 = offset6 | 0xFFC0;
       }
-      NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[baseR] + offset6);
-      if(NEXT_LATCHES.REGS[dr]>0)
+
+      int memAccess = MEMORY[(CURRENT_LATCHES.REGS[baseR] + offset6)/2][1];
+      if((memAccess>>7)&1==1)
+      {
+        memAccess=memAccess|0xFF00;
+      }
+      NEXT_LATCHES.REGS[dr]=Low16bits(memAccess);
+      if(memAccess>0)
        {
          NEXT_LATCHES.N=0;
          NEXT_LATCHES.Z=0;
          NEXT_LATCHES.P=1;
        }
-       else if(NEXT_LATCHES.REGS[dr]<0)
+       else if(memAccess<0)
        {
          NEXT_LATCHES.N=1;
          NEXT_LATCHES.Z=0;
@@ -531,25 +537,7 @@ void process_instruction(){
       if((offset6>>5)&1==1){  //To ensure correct sign extension
         offset6 = offset6 | 0xFFC0;
       }
-      NEXT_LATCHES.REGS[dr] = Low16bits( CURRENT_LATCHES.REGS[baseR] + offset6);
-      if(NEXT_LATCHES.REGS[dr]>0)
-       {
-         NEXT_LATCHES.N=0;
-         NEXT_LATCHES.Z=0;
-         NEXT_LATCHES.P=1;
-       }
-       else if(NEXT_LATCHES.REGS[dr]<0)
-       {
-         NEXT_LATCHES.N=1;
-         NEXT_LATCHES.Z=0;
-         NEXT_LATCHES.P=0;
-       }
-       else
-       {
-         NEXT_LATCHES.N=0;
-         NEXT_LATCHES.Z=1;
-         NEXT_LATCHES.P=0;
-       }
+      MEMORY[(CURRENT_LATCHES.REGS[baseR] + offset6)/2][1] = CURRENT_LATCHES.REGS[sr];
    }
    else if(opcode==4) //JSR(R)
    {
@@ -616,7 +604,7 @@ void process_instruction(){
    else if(opcode==6)  //LDW
    {
     int dr = (byte1>>1)&7;
-    int BaseR = (byte2>>6)&3;
+    int baseR = (byte2>>6)&3;
     if(byte1&1==1) baseR = baseR + 4;
     int offset6 = byte2&63;
     if((offset6>>5)&1==1){  //To ensure correct sign extension
