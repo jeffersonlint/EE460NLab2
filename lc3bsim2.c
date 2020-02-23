@@ -554,7 +554,21 @@ void process_instruction(){
    }
    else if(opcode==4) //JSR(R)
    {
-
+    int temp = NEXT_LATCHES.PC;
+    if(byte1>>3 == 0){  //JSRR
+      int baseR = (byte2>>6)&3;
+      if(byte1&1 == 1) baseR = baseR + 4;
+      NEXT_LATCHES.PC = baseR; 
+    }
+    else  //JSR
+    {
+      int pcoffset = byte2;
+      if(byte1&1 == 1) pcoffset = pcoffset + 256;
+      if(byte1>>1&1 == 1) pcoffset = pcoffset + 512;
+      if(byte1>>2&1 == 1) pcoffset = pcoffset + 1024;
+      NEXT_LATCHES.PC = Low16bits(CURRENT_LATCHES.PC + (pcoffset<<1);
+      NEXT_LATCHES.REGS[7] = temp;
+    }
    }
    else if(opcode==5) //AND
    {
