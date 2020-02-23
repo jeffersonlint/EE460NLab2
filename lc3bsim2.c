@@ -542,7 +542,7 @@ void process_instruction(){
          NEXT_LATCHES.P=0;
        }
    }
-   else if(opcode==3) //STB
+   else if(opcode==3) //STB DONE
    {
       int sr = (byte1>>1)&7;
       int baseR = (byte2>>6)&3;
@@ -676,17 +676,19 @@ void process_instruction(){
          NEXT_LATCHES.P=0;
        }
    }
-   else if(opcode==7) //STW
+   else if(opcode==7) //STW DONE
    {
     int sr = (byte1>>1)&7;
     int baseR = (byte2>>6)&3;
     if(byte1&1==1) baseR = baseR + 4;
     int offset6 = byte2&63;
     if((offset6>>5)&1==1){  //To ensure correct sign extension
-      offset6 = offset6 | 0xFFC0;
+      offset6 = offset6 | 0xFFFFFFC0;
     }
     int shiftoffset6 = offset6<<1;
-    MEMORY[(CURRENT_LATCHES.REGS[baseR] + shiftoffset6)/2][1] = CURRENT_LATCHES.REGS[sr];
+    MEMORY[(CURRENT_LATCHES.REGS[baseR]/2) + shiftoffset6][1] = (CURRENT_LATCHES.REGS[sr]&0xFF00)>>8;
+    MEMORY[(CURRENT_LATCHES.REGS[baseR]/2) + shiftoffset6][0] = CURRENT_LATCHES.REGS[sr]&0x00FF;
+
    }
    else if(opcode==9) //XOR DONE
    {
