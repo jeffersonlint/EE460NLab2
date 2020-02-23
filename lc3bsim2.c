@@ -420,7 +420,7 @@ void process_instruction(){
    NEXT_LATCHES.PC = CURRENT_LATCHES.PC+2; //increment PC
    int opcode = byte1>>4; //opcode in decimal
 
-   if(opcode==0)  //BR
+   if(opcode==0)  //BR DONE
    {
      int n = (byte1>>3)&1;
      int z = (byte1>>2)&1;
@@ -435,7 +435,7 @@ void process_instruction(){
        NEXT_LATCHES.PC=CURRENT_LATCHES.PC+(offset<<1);
      }
    }
-   else if(opcode==1) //ADD
+   else if(opcode==1) //ADD DONE
    {
      int dr = (byte1>>1)&7;
      int sr1 = (byte2>>6)&3;
@@ -506,7 +506,7 @@ void process_instruction(){
        }
      }
    }
-   else if(opcode==2) //LDB
+   else if(opcode==2) //LDB DONE
    {
       int dr = (byte1>>1)&7;
       int baseR = (byte2>>6)&3;
@@ -519,7 +519,7 @@ void process_instruction(){
       int memAccess = MEMORY[(CURRENT_LATCHES.REGS[baseR] + offset6)/2][1];
       if((memAccess>>7)&1==1)
       {
-        memAccess=memAccess|0xFF00;
+        memAccess=memAccess|0xFFFFFF00;
       }
       NEXT_LATCHES.REGS[dr]=Low16bits(memAccess);
       if(memAccess>0)
@@ -541,7 +541,7 @@ void process_instruction(){
          NEXT_LATCHES.P=0;
        }
    }
-   else if(opcode==3) //STB
+   else if(opcode==3) //STB DONE
    {
       int sr = (byte1>>1)&7;
       int baseR = (byte2>>6)&3;
@@ -570,7 +570,7 @@ void process_instruction(){
       NEXT_LATCHES.REGS[7] = temp;
     }
    }
-   else if(opcode==5) //AND
+   else if(opcode==5) //AND DONE
    {
      int dr = (byte1>>1)&7;
      int sr1 = (byte2>>6)&3;
@@ -680,10 +680,10 @@ void process_instruction(){
     if((offset6>>5)&1==1){  //To ensure correct sign extension
       offset6 = offset6 | 0xFFC0;
     }
-    int shiftOffset = offset6<<1;
+    int shiftoffset6 = offset6<<1;
     MEMORY[(CURRENT_LATCHES.REGS[baseR] + shiftoffset6)/2][1] = CURRENT_LATCHES.REGS[sr];
    }
-   else if(opcode==9) //XOR
+   else if(opcode==9) //XOR DONE
    {
      int dr = (byte1>>1)&7;
      int sr1 = (byte2>>6)&3;
