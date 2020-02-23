@@ -756,7 +756,9 @@ void process_instruction(){
    }
    else if(opcode==12)  //JMP
    {
-
+    int baseR = (byte2>>6)&3;
+    if(byte1&1 = 1) baseR = baseR + 4;
+    NEXT_LATCHES.PC = baseR;
    }
    else if(opcode==13)  //SHF
    {
