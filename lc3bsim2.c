@@ -566,12 +566,8 @@ void process_instruction(){
       if(byte1&1 == 1) pcoffset = pcoffset + 256;
       if(byte1>>1&1 == 1) pcoffset = pcoffset + 512;
       if(byte1>>2&1 == 1) pcoffset = pcoffset + 1024;
-<<<<<<< HEAD
-      NEXT_LATCHES.PC = Low16bits(CURRENT_LATCHES.PC + (pcoffset<<1));
-=======
       int x = CURRENT_LATCHES.PC + (pcoffset<<1);
       NEXT_LATCHES.PC = Low16bits(x);
->>>>>>> 8c6b778ba0ae1112ee8a6f15661436314a41b307
       NEXT_LATCHES.REGS[7] = temp;
     }
    }
