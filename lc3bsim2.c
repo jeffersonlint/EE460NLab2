@@ -432,7 +432,7 @@ void process_instruction(){
        {
          offset = offset | 0xFFFFFF00;
        }
-       NEXT_LATCHES.PC=CURRENT_LATCHES.PC+(offset<<1);
+       NEXT_LATCHES.PC=NEXT_LATCHES.PC+(offset<<1);
      }
    }
    else if(opcode==1) //ADD DONE
@@ -506,7 +506,7 @@ void process_instruction(){
        }
      }
    }
-   else if(opcode==2) //LDB DONE
+   else if(opcode==2) //LDB
    {
       int dr = (byte1>>1)&7;
       int baseR = (byte2>>6)&3;
@@ -541,7 +541,7 @@ void process_instruction(){
          NEXT_LATCHES.P=0;
        }
    }
-   else if(opcode==3) //STB DONE
+   else if(opcode==3) //STB
    {
       int sr = (byte1>>1)&7;
       int baseR = (byte2>>6)&3;
@@ -641,28 +641,31 @@ void process_instruction(){
        }
      }
    }
-   else if(opcode==6)  //LDW
+   else if(opcode==6)  //LDW DONE
    {
     int dr = (byte1>>1)&7;
     int baseR = (byte2>>6)&3;
     if(byte1&1==1) baseR = baseR + 4;
     int offset6 = byte2&63;
     if((offset6>>5)&1==1){  //To ensure correct sign extension
-      offset6 = offset6 | 0xFFC0;
+      offset6 = offset6 | 0xFFFFFFC0;
     }
-    int shiftOffset = offset6<<1;
-    NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[baseR] + shiftOffset);
-      if(NEXT_LATCHES.REGS[dr]>0)
-       {
-         NEXT_LATCHES.N=0;
-         NEXT_LATCHES.Z=0;
-         NEXT_LATCHES.P=1;
-       }
-       else if(NEXT_LATCHES.REGS[dr]<0)
+    int memAccess = MEMORY[(CURRENT_LATCHES.REGS[baseR]/4)+offset6<<1][1];
+    memAccess = memAccess<<8;
+    memAccess = memAccess+MEMORY[(CURRENT_LATCHES.REGS[baseR]/4)+offset6<<1][0];
+    NEXT_LATCHES.REGS[dr] = Low16bits(memAccess);
+
+      if((memAccess>>15)&1==1)
        {
          NEXT_LATCHES.N=1;
          NEXT_LATCHES.Z=0;
          NEXT_LATCHES.P=0;
+       }
+       else if(memAccess!=0)
+       {
+         NEXT_LATCHES.N=0;
+         NEXT_LATCHES.Z=0;
+         NEXT_LATCHES.P=1;
        }
        else
        {
@@ -764,16 +767,20 @@ void process_instruction(){
    {
 
    }
-   else if(opcode==14)  //LEA
+   else if(opcode==14)  //LEA DONE
    {
     int dr = (byte1>>1)&3;
     int pcoffset = byte2;
     if(byte1&1==1) pcoffset = pcoffset | 0xFFFFFF00;
-    NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.PC + (pcoffset<<1));
+    NEXT_LATCHES.REGS[dr]=Low16bits(NEXT_LATCHES.PC + (pcoffset<<1));
    }
-   else if(opcode==15)  //TRAP
+   else if(opcode==15)  //TRAP DONE
    {
-
+     NEXT_LATCHES.REGS[7] = NEXT_LATCHES.PC;
+     int memAccess = MEMORY[byte2/2][1];
+     memAccess = memAccess<<8;
+     memAccess = memAccess+MEMORY[byte2/2][0];
+     NEXT_LATCHES.PC = Low16bits(memAccess);
    }
    else
    {
