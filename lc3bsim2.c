@@ -559,7 +559,7 @@ void process_instruction(){
     if(byte1>>3 == 0){  //JSRR
       int baseR = (byte2>>6)&3;
       if(byte1&1 == 1) baseR = baseR + 4;
-      NEXT_LATCHES.PC = baseR;
+      NEXT_LATCHES.PC = CURRENT_LATCHES.REGS[baseR];
     }
     else{  //JSR
       int pcoffset = byte2;
