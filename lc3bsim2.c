@@ -750,7 +750,10 @@ void process_instruction(){
    }
    else if(opcode==14)  //LEA
    {
-
+    int dr = (byte1>>1)&3;
+    int pcoffset = byte2;
+    if(byte1&1==1) pcoffset = pcoffset | 0xFFFFFF00;
+    NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.PC + (pcoffset<<1));
    }
    else if(opcode==15)  //TRAP
    {
