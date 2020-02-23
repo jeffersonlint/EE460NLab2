@@ -506,7 +506,7 @@ void process_instruction(){
        }
      }
    }
-   else if(opcode==2) //LDB
+   else if(opcode==2) //LDB DONE
    {
       int dr = (byte1>>1)&7;
       int baseR = (byte2>>6)&3;
@@ -516,7 +516,8 @@ void process_instruction(){
         offset6 = offset6 | 0xFFC0;
       }
 
-      int memAccess = MEMORY[(CURRENT_LATCHES.REGS[baseR] + offset6)/2][1];
+      int memAccess = MEMORY[(CURRENT_LATCHES.REGS[baseR]/2) + offset6][0];
+      printf("%i, %i\n", (CURRENT_LATCHES.REGS[baseR]/2) + offset6, MEMORY[(CURRENT_LATCHES.REGS[baseR]/2) + offset6][0]);
       if((memAccess>>7)&1==1)
       {
         memAccess=memAccess|0xFFFFFF00;
@@ -548,9 +549,9 @@ void process_instruction(){
       if(byte1&1==1) baseR=baseR+4;
       int offset6 = byte2&63;
       if((offset6>>5)&1==1){  //To ensure correct sign extension
-        offset6 = offset6 | 0xFFC0;
+        offset6 = offset6 | 0xFFFFFFC0;
       }
-      MEMORY[(CURRENT_LATCHES.REGS[baseR] + offset6)/2][1] = CURRENT_LATCHES.REGS[sr];
+      MEMORY[(CURRENT_LATCHES.REGS[baseR]/2) + offset6][0] = CURRENT_LATCHES.REGS[sr]&0x000000FF;
    }
    else if(opcode==4) //JSR(R) ////Michael says this is scary
    {
@@ -558,14 +559,19 @@ void process_instruction(){
     if(byte1>>3 == 0){  //JSRR
       int baseR = (byte2>>6)&3;
       if(byte1&1 == 1) baseR = baseR + 4;
-      NEXT_LATCHES.PC = baseR; 
+      NEXT_LATCHES.PC = baseR;
     }
     else{  //JSR
       int pcoffset = byte2;
       if(byte1&1 == 1) pcoffset = pcoffset + 256;
       if(byte1>>1&1 == 1) pcoffset = pcoffset + 512;
       if(byte1>>2&1 == 1) pcoffset = pcoffset + 1024;
+<<<<<<< HEAD
       NEXT_LATCHES.PC = Low16bits(CURRENT_LATCHES.PC + (pcoffset<<1));
+=======
+      int x = CURRENT_LATCHES.PC + (pcoffset<<1);
+      NEXT_LATCHES.PC = Low16bits(x);
+>>>>>>> 8c6b778ba0ae1112ee8a6f15661436314a41b307
       NEXT_LATCHES.REGS[7] = temp;
     }
    }
@@ -759,7 +765,7 @@ void process_instruction(){
    else if(opcode==12)  //JMP
    {
     int baseR = (byte2>>6)&3;
-    if(byte1&1 = 1) baseR = baseR + 4;
+    if(byte1&1 == 1) baseR = baseR + 4;
     NEXT_LATCHES.PC = baseR;
    }
    else if(opcode==13)  //SHF
