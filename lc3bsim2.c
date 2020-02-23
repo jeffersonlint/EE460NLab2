@@ -516,7 +516,7 @@ void process_instruction(){
         offset6 = offset6 | 0xFFC0;
       }
 
-      int memAccess = MEMORY[(CURRENT_LATCHES.REGS[baseR] + offset6)/2][1];
+      int memAccess = MEMORY[(CURRENT_LATCHES.REGS[baseR] + offset6)/4][1];
       if((memAccess>>7)&1==1)
       {
         memAccess=memAccess|0xFFFFFF00;
@@ -558,7 +558,7 @@ void process_instruction(){
     if(byte1>>3 == 0){  //JSRR
       int baseR = (byte2>>6)&3;
       if(byte1&1 == 1) baseR = baseR + 4;
-      NEXT_LATCHES.PC = baseR; 
+      NEXT_LATCHES.PC = baseR;
     }
     else  //JSR
     {
