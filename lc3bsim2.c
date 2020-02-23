@@ -560,13 +560,12 @@ void process_instruction(){
       if(byte1&1 == 1) baseR = baseR + 4;
       NEXT_LATCHES.PC = baseR; 
     }
-    else  //JSR
-    {
+    else{  //JSR
       int pcoffset = byte2;
       if(byte1&1 == 1) pcoffset = pcoffset + 256;
       if(byte1>>1&1 == 1) pcoffset = pcoffset + 512;
       if(byte1>>2&1 == 1) pcoffset = pcoffset + 1024;
-      NEXT_LATCHES.PC = Low16bits(CURRENT_LATCHES.PC + (pcoffset<<1);
+      NEXT_LATCHES.PC = Low16bits(CURRENT_LATCHES.PC + (pcoffset<<1));
       NEXT_LATCHES.REGS[7] = temp;
     }
    }
@@ -765,7 +764,57 @@ void process_instruction(){
    }
    else if(opcode==13)  //SHF
    {
-
+    int amount = (byte2&15);
+    int dr = (byte1>>1)&7;
+    int sr = (byte2>>6)&3;
+    int nzp = 0;
+    if(byte1&1 == 1) sr = sr + 4;
+    if(byte2>>4 == 0)  //LSHF
+    {
+      NEXT_LATCHES.REGS[dr]=Low16bits(sr<<amount);
+      nzp = sr<<amount;
+    }
+    else if(byte2>>5 == 0)  //RSHFL
+    {
+      NEXT_LATCHES.REGS[dr]=Low16bits(sr>>amount);
+      nzp = sr>>amount;
+    }
+    else  //RSHFA
+    {
+      if((byte1>>7)&1 == 1){
+        nzp = sr;    
+        for (int i = 0; i < amount; ++i)
+        {
+          sr>>1;
+          nzp>>1;
+          sr = sr | 32768;  //Set most signifcant bit to 1
+          nzp = nzp | 32768;
+        }
+        NEXT_LATCHES.REGS[dr]=Low16bits(sr); 
+      }
+      else{
+        nzp = sr>>amount;
+        NEXT_LATCHES.REGS[dr]=Low16bits(sr>>amount); 
+      }
+    }
+           if(nzp>0)
+       {
+         NEXT_LATCHES.N=0;
+         NEXT_LATCHES.Z=0;
+         NEXT_LATCHES.P=1;
+       }
+       else if(nzp<0)
+       {
+         NEXT_LATCHES.N=1;
+         NEXT_LATCHES.Z=0;
+         NEXT_LATCHES.P=0;
+       }
+       else
+       {
+         NEXT_LATCHES.N=0;
+         NEXT_LATCHES.Z=1;
+         NEXT_LATCHES.P=0;
+       }
    }
    else if(opcode==14)  //LEA DONE
    {
