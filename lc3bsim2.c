@@ -768,52 +768,58 @@ void process_instruction(){
     if(byte1&1 == 1) baseR = baseR + 4;
     NEXT_LATCHES.PC = CURRENT_LATCHES.REGS[baseR];
    }
-   else if(opcode==13)  //SHF
+   else if(opcode==13)  //SHF DONE
    {
     int amount = (byte2&15);
     int dr = (byte1>>1)&7;
     int sr = (byte2>>6)&3;
     int nzp = 0;
     if(byte1&1 == 1) sr = sr + 4;
-    if(byte2>>4 == 0)  //LSHF
+    int shiftDir = (byte2>>4)&1;
+    int shiftDir2 = (byte2>>5)&1;
+    if(shiftDir == 0)  //LSHF
     {
-      NEXT_LATCHES.REGS[dr]=Low16bits(sr<<amount);
-      nzp = sr<<amount;
+      NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr]<<amount);
+      nzp = CURRENT_LATCHES.REGS[sr]<<amount;
     }
-    else if(byte2>>5 == 0)  //RSHFL
+    else if(shiftDir2 == 0)  //RSHFL
     {
-      NEXT_LATCHES.REGS[dr]=Low16bits(sr>>amount);
-      nzp = sr>>amount;
+      NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr]>>amount);
+      nzp = CURRENT_LATCHES.REGS[sr]>>amount;
     }
     else  //RSHFA
     {
-      if((byte1>>7)&1 == 1){
-        nzp = sr;
+      if((CURRENT_LATCHES.REGS[sr]>>15)&1 == 1){
+        nzp = CURRENT_LATCHES.REGS[sr];
+        int shifted = CURRENT_LATCHES.REGS[sr];
         for (int i = 0; i < amount; ++i)
         {
-          sr>>1;
-          nzp>>1;
-          sr = sr | 32768;  //Set most signifcant bit to 1
+          shifted = shifted>>1;
+          nzp = nzp>>1;
+          shifted = shifted | 32768;  //Set most signifcant bit to 1
           nzp = nzp | 32768;
+          printf("%i\n", shifted);
         }
-        NEXT_LATCHES.REGS[dr]=Low16bits(sr);
+        NEXT_LATCHES.REGS[dr]=Low16bits(shifted);
       }
-      else{
-        nzp = sr>>amount;
-        NEXT_LATCHES.REGS[dr]=Low16bits(sr>>amount);
+      else
+      {
+        nzp = CURRENT_LATCHES.REGS[sr]>>amount;
+        NEXT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr]>>amount);
       }
     }
-      if(nzp>0)
-      {
-        NEXT_LATCHES.N=0;
-        NEXT_LATCHES.Z=0;
-        NEXT_LATCHES.P=1;
-      }
-      else if(nzp<0)
+      int nzpShf = (nzp>>15)&1;
+      if(nzpShf==1)
       {
         NEXT_LATCHES.N=1;
         NEXT_LATCHES.Z=0;
         NEXT_LATCHES.P=0;
+      }
+      else if(nzp!=0)
+      {
+        NEXT_LATCHES.N=0;
+        NEXT_LATCHES.Z=0;
+        NEXT_LATCHES.P=1;
       }
       else
       {
